@@ -1,0 +1,35 @@
+{
+    "project": {
+        "title"          : "MusicNet Server",
+        "bundleName"     : "musicNet-server.bundle",
+        "mainFile"       : "src/app.js",
+        "server": {
+            "path"       : "localhost",
+            "port"       : "8080"
+        },
+        "playerBindings" : [
+            {
+                "type"     : "youtube",
+                "name"     : "YouTube (Test)",
+                "settings" : {
+                    "key": "your.api.key"
+                }
+            },
+            {
+                "type"     : "spotify",
+                "name"     : "Spotify (Test)",
+                "settings" : {
+                    "key": null
+                }
+            }
+        ]
+    },
+    "development": {
+        "dev": {
+            "buildTarget": "/build/dev"
+        },
+        "prod": {
+            "buildTarget": "/build/prod"
+        }
+    }
+}
