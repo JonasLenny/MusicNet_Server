@@ -1,13 +1,16 @@
 'use strict'
 
 import express from 'express'
+import http    from 'http'
 import path    from 'path'
 
 import config  from './../config.json'
 import System  from './routes/system'
+import Events  from './api/events'
 
-const port = config.project.server.port
-const app  = express()
+const port       = config.project.server.port
+const app        = express()
+const httpServer = http.createServer(app)
 
 class Application {
     constructor() {
@@ -19,13 +22,15 @@ class Application {
         console.log(`[${this.className}] initialising`)
 
         // list all public folders here
-        app.use(express.static(__dirname + '/public/user'))
+        app.use(this.customRequestHeader)
 
-
+        // append the routes to the app
         System.init(app)
+        Events.init(httpServer, config)
+        // init the websocket
 
 
-        app.listen(port, this.portHandler)
+        httpServer.listen(port, this.portHandler)
     }
 
     portHandler(error) {
@@ -38,6 +43,14 @@ class Application {
     /***********************************************
     *                 help functions
     ************************************************/
+
+    customRequestHeader(req, res, next) {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+
+        next();
+    }
+
 }
 
 new Application().init()

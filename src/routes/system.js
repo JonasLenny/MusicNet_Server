@@ -25,12 +25,15 @@ class System {
 
         // TODO: replace this with the configurator, later.
         router.get('/', (req, res) => {
-            res.send('yes it works with returning the Routes object')
+            res.header('Content-type', 'text/html')
+            return res.end('<h1>Hello, this will be the configurator in a few days!</h1>')
         })
 
         this.registerRouter('/', router)
 
-        User.init()
+        User.init(app)
+        // Playlist.init(app)
+        // Configurator.init(app)
     }
 
     requestLogger(req, res, next) {

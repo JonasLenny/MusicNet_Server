@@ -24,6 +24,13 @@ class Routes {
         System.registerRouter(path, router)
     }
 
+    registerStaticFiles(path) {
+        if(this.app)
+            this.app.use(express.static(path))
+        else
+            console.warn('this.app is not available, make sure it will be passed to your class.')
+    }
+
     /***********************************************
     *                 help functions
     ************************************************/

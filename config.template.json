@@ -5,7 +5,8 @@
         "mainFile"       : "src/app.js",
         "server": {
             "path"       : "localhost",
-            "port"       : "8080"
+            "port"       : "8080",
+            "api"        : "/api"
         },
         "playerBindings" : [
             {
