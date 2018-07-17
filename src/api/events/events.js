@@ -1,11 +1,11 @@
 'use strict'
 
 // import area
-import Server        from 'socket.io'
-import SocketHandler from './../utils/socketHandler'
+import EventConstants from './eventConstants'
+import EventHandler   from './eventHandler'
 
 // variables area
-const io = new Server()
+
 
 class Events {
     constructor() {
@@ -16,22 +16,21 @@ class Events {
         this.onConnection    = this.onConnection.bind(this)
     }
 
-    init(server, config) {
+    init(websocket, config, store) {
         console.log(`[${this.className}] initialising`)
 
-        this.config = config
-        this.server = server
+        this.websocket      = websocket
+        this.config         = config
+        this.store          = store
+        this.eventNamespace = websocket.of(this.config.project.server.api)
 
-        io.attach(this.server)
-        this.eventNamespace = io.of(this.config.project.server.api)
-
-        this.eventNamespace.on('connection', this.onConnection)
+        this.eventNamespace.on(EventConstants.CONNECTION, this.onConnection)
     }
 
     onConnection(socket) {
         console.log(`[${this.className}] connection established with ${socket.id}`)
 
-        this.registerConnection(socket.id, new SocketHandler(this, socket))
+        this.registerConnection(socket.id, new EventHandler(this.store, this, socket))
     }
 
     registerConnection(id, socket) {

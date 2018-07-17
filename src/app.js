@@ -3,34 +3,64 @@
 import express from 'express'
 import http    from 'http'
 import path    from 'path'
+import Server  from 'socket.io'
 
 import config  from './../config.json'
+import Store   from './store/store'
 import System  from './routes/system'
-import Events  from './api/events'
+import Events  from './api/events/events'
 
 const port       = config.project.server.port
 const app        = express()
 const httpServer = http.createServer(app)
+const io         = new Server()
 
 class Application {
     constructor() {
         this.className   = this.constructor.name
         this.portHandler = this.portHandler.bind(this)
+
+        this.store       = new Store()
     }
 
     init() {
         console.log(`[${this.className}] initialising`)
 
-        // list all public folders here
-        app.use(this.customRequestHeader)
+        // TODO: init the store
+        this.store.init()
 
-        // append the routes to the app
-        System.init(app)
-        Events.init(httpServer, config)
-        // init the websocket
+        // NOTE: do some general stuff
+        .then(() => {
 
+            // list all public folders here
+            app.use(this.customRequestHeader)
 
-        httpServer.listen(port, this.portHandler)
+            // attach the websocket server to the http server
+            io.attach(httpServer)
+
+            return
+        })
+
+        // NOTE: initialise the system and it's routes
+        .then(() => {
+
+            // append the routes to the app
+            return System.init(app, this.store)
+        })
+
+        // NOTE: initialise the events as api
+        .then(() => {
+            return Events.init(io, config, this.store)
+        })
+
+        // NOTE: let the server listen to the specific port
+        .then(() => {
+            return httpServer.listen(port, this.portHandler)
+        })
+
+        .catch(error => {
+            console.error(error)
+        })
     }
 
     portHandler(error) {

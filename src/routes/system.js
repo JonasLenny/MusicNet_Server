@@ -17,9 +17,10 @@ class System {
         this.registerRouter = this.registerRouter.bind(this)
     }
 
-    init(app) {
+    init(app, store) {
         console.log(`[${this.className}] initialising`)
-        this.app = app
+        this.app   = app
+        this.store = store
 
         router.use(this.requestLogger)
 
