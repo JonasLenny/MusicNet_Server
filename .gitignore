@@ -60,3 +60,4 @@ typings/
 # custom stuff
 config.json
 build
+*.db
