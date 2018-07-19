@@ -1,40 +1,51 @@
 'use strict'
 
 // import area
-import express from 'express'
+import express        from 'express'
 
-import User   from './user'
+import User           from './user'
+
+import Events         from './../api/events/events'
+import EventConstants from './../api/events/eventConstants'
 
 // variables area
 const router = express.Router()
 
 class System {
     constructor() {
-        this.className      = this.constructor.name
-        this.app            = undefined
+        this.className         = this.constructor.name
+        this.app               = undefined
 
-        this.requestLogger  = this.requestLogger.bind(this)
-        this.registerRouter = this.registerRouter.bind(this)
+        this.requestLogger     = this.requestLogger.bind(this)
+        this.registerRouter    = this.registerRouter.bind(this)
     }
 
     init(app, store) {
-        console.log(`[${this.className}] initialising`)
-        this.app   = app
-        this.store = store
+        let promise = new Promise((resolve, reject) => {
+            console.log(`[${this.className}] initialising`)
 
-        router.use(this.requestLogger)
+            this.app   = app
+            this.store = store
 
-        // TODO: replace this with the configurator, later.
-        router.get('/', (req, res) => {
-            res.header('Content-type', 'text/html')
-            return res.end('<h1>Hello, this will be the configurator in a few days!</h1>')
+            router.use(this.requestLogger)
+
+            // TODO: remove this
+                router.get('/', (req, res) => {
+                    res.header('Content-type', 'text/html')
+                    return res.end('<h1>Hello, this will be the configurator in a few days!</h1>')
+                })
+
+                this.registerRouter('/', router)
+            // TODO: end
+
+            User.init(app)
+            // Playlist.init(app)
+            // Configurator.init(app)
+
+            resolve()
         })
 
-        this.registerRouter('/', router)
-
-        User.init(app)
-        // Playlist.init(app)
-        // Configurator.init(app)
+        return promise
     }
 
     requestLogger(req, res, next) {
@@ -51,6 +62,7 @@ class System {
     /***********************************************
     *                 help functions
     ************************************************/
+
 }
 
 export default new System()

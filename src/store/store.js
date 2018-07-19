@@ -10,6 +10,7 @@ class Store {
         this.className    = this.constructor.name
         this.state        = undefined
         this.bindings     = undefined
+        this.playlist     = undefined
         this.database     = new Database()
 
         this.initBindings = this.initBindings.bind(this)
@@ -43,6 +44,10 @@ class Store {
 
     getBindings() {
         return this.bindings
+    }
+
+    getPlaylist() {
+        return this.playlist
     }
 
     /***********************************************

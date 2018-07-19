@@ -1,14 +1,17 @@
 'use strict'
 
-import express from 'express'
-import http    from 'http'
-import path    from 'path'
-import Server  from 'socket.io'
+import express  from 'express'
+import http     from 'http'
+import path     from 'path'
+import Server   from 'socket.io'
 
-import config  from './../config.json'
-import Store   from './store/store'
-import System  from './routes/system'
-import Events  from './api/events/events'
+
+import Store    from './store/store'
+import System   from './routes/system'
+import Bindings from './bindings/bindings'
+import Events   from './api/events/events'
+
+import config   from './../config.json'
 
 const port       = config.project.server.port
 const app        = express()
@@ -41,16 +44,21 @@ class Application {
             return
         })
 
+        // NOTE: initialise the events as api
+        .then(() => {
+            return Events.init(io, config, this.store)
+        })
+
+        // NOTE: initialise the bindings
+        .then(() => {
+            return Bindings.init(this.store)
+        })
+
         // NOTE: initialise the system and it's routes
         .then(() => {
 
             // append the routes to the app
             return System.init(app, this.store)
-        })
-
-        // NOTE: initialise the events as api
-        .then(() => {
-            return Events.init(io, config, this.store)
         })
 
         // NOTE: let the server listen to the specific port
