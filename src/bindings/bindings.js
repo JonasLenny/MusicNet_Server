@@ -58,7 +58,11 @@ class Bindings {
     search(sources, query) {
         let promise = new Promise((resolve, reject) => {
             console.log(`[${this.className}] looking for ${query} in ${JSON.stringify(sources)}`)
-            resolve()
+            let dummyList = {
+                spotify: []
+            }
+
+            resolve(dummyList)
         })
 
         return promise

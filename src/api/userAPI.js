@@ -15,6 +15,7 @@ class UserAPI {
 
         this.addSocketListener = this.addSocketListener.bind(this)
         this.onRegister        = this.onRegister.bind(this)
+        this.onSearch          = this.onSearch.bind(this)
     }
 
     init(store) {
@@ -37,6 +38,12 @@ class UserAPI {
         socketHandler.addListener(EventConstants.REGISTER, (event) => {
             this.onRegister(socketHandler, event)
         })
+
+        socketHandler.addListener(EventConstants.SEARCH, (event) => {
+            this.onSearch(socketHandler, event)
+        })
+
+        // TODO: add more listener in this function
     }
 
 
@@ -59,6 +66,22 @@ class UserAPI {
 
         source.joinRoom(EventConstants.ROOM_USER)
         source.sendMessage(EventConstants.REGISTER_RESPONSE, state)
+    }
+
+    onSearch(source, event) {
+        console.log(`[${this.className}] search event received`)
+
+        Bindings.search(event)
+        .then(response => {
+            console.log(`[${this.className}] search response`)
+            console.log(response)
+        })
+        .then(list => {
+            source.sendMessage(EventConstants.SEARCH_RESPONSE, list)
+        })
+        .catch(error => {
+            console.error(error)
+        })
     }
 }
 
