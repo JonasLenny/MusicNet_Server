@@ -1,17 +1,18 @@
 'use strict'
 
-import express  from 'express'
-import http     from 'http'
-import path     from 'path'
-import Server   from 'socket.io'
+import express      from 'express'
+import http         from 'http'
+import path         from 'path'
+import cors         from 'cors'
+import cookieParser from 'cookie-parser'
+import Server       from 'socket.io'
 
+import Store        from './store/store'
+import System       from './routes/system'
+import Bindings     from './bindings/bindings'
+import Events       from './api/events/events'
 
-import Store    from './store/store'
-import System   from './routes/system'
-import Bindings from './bindings/bindings'
-import Events   from './api/events/events'
-
-import config   from './../config.json'
+import config       from './../config.json'
 
 const port       = config.project.server.port
 const app        = express()
@@ -35,9 +36,9 @@ class Application {
         // NOTE: do some general stuff
         .then(() => {
 
-            // list all public folders here
-            app.use(this.customRequestHeader)
-
+            // app.use(this.customRequestHeader)
+            app.use(cors())
+            app.use(cookieParser())
             // attach the websocket server to the http server
             io.attach(httpServer)
 
@@ -51,7 +52,7 @@ class Application {
 
         // NOTE: initialise the bindings
         .then(() => {
-            return Bindings.init(this.store)
+            return Bindings.init(app, this.store)
         })
 
         // NOTE: initialise the system and it's routes
@@ -82,12 +83,12 @@ class Application {
     *                 help functions
     ************************************************/
 
-    customRequestHeader(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-
-        next();
-    }
+    // customRequestHeader(req, res, next) {
+    //     res.header("Access-Control-Allow-Origin", "*");
+    //     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    //
+    //     next();
+    // }
 
 }
 

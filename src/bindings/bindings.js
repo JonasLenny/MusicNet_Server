@@ -1,16 +1,25 @@
 'use strict'
 
 // import area
+import Utils          from './../utils/utils'
 import Events         from './../api/events/events'
 import EventConstants from './../api/events/eventConstants'
 
 // TODO: import spotify
+import Spotify        from './spotify/spotify'
 
 // variables area
+const bindings = [
+    {
+        name     : 'spotify',
+        instance : Spotify
+    }
+]
 
 class Bindings {
     constructor() {
         this.className         = this.constructor.name
+        this.app               = undefined
         this.store             = undefined
 
         this.initBindings      = this.initBindings.bind(this)
@@ -19,13 +28,14 @@ class Bindings {
         this.search            = this.search.bind(this)
     }
 
-    init(store) {
+    init(app, store) {
         let promise = new Promise((resolve, reject) => {
             console.log(`[${this.className}] initialise the following bindings`)
 
+            this.app    = app
             this.store  = store
 
-            this.initBindings(store.getBindings())
+            this.initBindings(store.getBindings(), app, store)
 
             .then(() => {
                 Events.on(EventConstants.NEW_CONNECTION, this.addSocketListener)
@@ -55,14 +65,32 @@ class Bindings {
     *   sources - Array<String>: list with the names of bindings which shall be included
     *   query   - String: the input to look for
     **/
-    search(sources, query) {
+    search(event) {
         let promise = new Promise((resolve, reject) => {
-            console.log(`[${this.className}] looking for ${query} in ${JSON.stringify(sources)}`)
-            let dummyList = {
-                spotify: []
+            console.log(event)
+
+            let sources = ['spotify']
+            let query   = event.message.query
+
+            console.log(`[${this.className}] looking for - ${query} - in ${JSON.stringify(sources)}`)
+
+            let resultList = []
+
+            for(let entry of sources) {
+                let binding  = bindings.find(x => x.name === entry)
+                let instance = binding.instance
+
+                resultList.push(instance.search(query))
             }
 
-            resolve(dummyList)
+            Promise.all(resultList)
+            .then(results => {
+                let mergedResults = Utils.flatten2DArray(results)
+
+                // console.log(mergedResults)
+
+                resolve(mergedResults)
+            })
         })
 
         return promise
@@ -72,12 +100,28 @@ class Bindings {
     *                 help functions
     ************************************************/
 
-    initBindings(list) {
+    initBindings(data, app, store) {
         let promise = new Promise((resolve, reject) => {
-            console.log(`[${this.className}] load the following bindings`)
-            console.log(list)
+            let promiseList = []
 
-            resolve()
+            for(let entry of bindings) {
+                console.log(`[${this.className}] initialise ${entry.name}`)
+                // console.log(data)
+
+                let storedData = data.get(entry.name)
+                let instance   = entry.instance
+
+                promiseList.push(instance.init(storedData, app, store))
+            }
+
+            Promise.all(promiseList)
+            .then(promisedList => {
+                resolve()
+            })
+            .catch(error => {
+                console.error(error)
+                reject()
+            })
         })
 
         return promise
@@ -87,6 +131,7 @@ class Bindings {
         let type  = event.message.type
         let state = {}
 
+        // IDEA: maybe the configurator needs this too?
         if(type != EventConstants.ROLE_CONFIGURATOR)
             return
 

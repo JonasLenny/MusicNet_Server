@@ -7,14 +7,16 @@ import Database from './database'
 
 class Store {
     constructor() {
-        this.className    = this.constructor.name
-        this.state        = undefined
-        this.bindings     = undefined
-        this.playlist     = undefined
-        this.database     = new Database()
+        this.className     = this.constructor.name
+        this.bindings      = new Map()
+        this.state         = undefined
+        this.playlist      = undefined
+        this.database      = new Database()
 
-        this.initBindings = this.initBindings.bind(this)
-        this.initState    = this.initState.bind(this)
+        this.initBindings  = this.initBindings.bind(this)
+        this.initState     = this.initState.bind(this)
+        this.getBindings   = this.getBindings.bind(this)
+        this.updateBinding = this.updateBinding.bind(this)
     }
 
     init() {
@@ -38,6 +40,50 @@ class Store {
         return promise
     }
 
+    /**
+    *   TODO: update the array with the saved db entry
+    *
+    *
+    **/
+    addBinding(name, params) {
+        console.log(`[${this.className}] addBinding for ${name}`)
+
+        let dbEntry = {
+            name   : name,
+            params : params
+        }
+
+        this.addBinding(dbEntry)
+        this.database.save('bindings', dbEntry)
+        .then(entry => {
+            console.log(`[${this.className}] Binding ${entry.name} saved`)
+            this.updateBindingMap(entry)
+        })
+        .catch(error => {
+            console.error(error)
+        })
+    }
+
+    updateBinding(name, data) {
+        // console.log(`[${this.className}] update ${name}`)
+
+        let dbEntry = {
+            name   : name,
+            params : data
+        }
+
+        let newEntry = this.updateBindingMap(dbEntry)
+
+        this.database.save('bindings', newEntry)
+        .then(entry => {
+            // console.log(`[${this.className}] Binding ${entry.name} updated`)
+            this.updateBindingMap(entry)
+        })
+        .catch(error => {
+            console.error(error)
+        })
+    }
+
     getState() {
         return this.state
     }
@@ -58,8 +104,11 @@ class Store {
         let promise = new Promise((resolve, reject) => {
             this.database.getEntry('bindings', {})
             .then(entries => {
-                this.bindings = entries
-                return
+
+                for(let entry of entries)
+                    this.bindings.set(entry.name, entry)
+
+                resolve()
             })
             .then(() => {
                 resolve()
@@ -77,6 +126,21 @@ class Store {
         }
     }
 
+    addBinding(entry) {
+        this.bindings.set(entry.name, entry)
+    }
+
+    updateBindingMap(entry) {
+        let currentEntry = this.bindings.get(entry.name)
+        let newEntry     = {}
+
+        newEntry.name   = entry.name
+        newEntry.params = Object.assign(currentEntry.params, entry.params)
+
+        this.bindings.set(entry.name, newEntry)
+
+        return newEntry
+    }
 }
 
 export default Store

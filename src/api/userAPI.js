@@ -60,9 +60,10 @@ class UserAPI {
 
         console.log(`[${this.className}] registering event received`)
         console.log(event)
+        let availableBindings = this.store.getBindings()
 
         state.displayState = this.store.getState(),
-        state.bindings     = this.store.getBindings()
+        state.bindings     = this.reduceBindingInformation(availableBindings)
 
         source.joinRoom(EventConstants.ROOM_USER)
         source.sendMessage(EventConstants.REGISTER_RESPONSE, state)
@@ -70,18 +71,38 @@ class UserAPI {
 
     onSearch(source, event) {
         console.log(`[${this.className}] search event received`)
+        // console.log(source)
+        console.log(event)
 
         Bindings.search(event)
         .then(response => {
-            console.log(`[${this.className}] search response`)
-            console.log(response)
+            // console.log(`[${this.className}] search response`)
+            // console.log(response)
+
+            return response
         })
         .then(list => {
+            console.log(`[${this.className}] response list`)
+            console.log(list)
             source.sendMessage(EventConstants.SEARCH_RESPONSE, list)
         })
         .catch(error => {
             console.error(error)
         })
+    }
+
+    reduceBindingInformation(list) {
+        let reducedBindings = []
+
+        for(let [key, value] of list.entries()) {
+            let reduced = {}
+            reduced.name = value.name
+            reduced.icon = value.params.icon
+
+            reducedBindings.push(reduced)
+        }
+
+        return reducedBindings
     }
 }
 

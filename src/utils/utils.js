@@ -1,8 +1,17 @@
 'use strict'
 
+// import area
+import uuidv1 from 'uuid/v1'
+
+// variables area
+
 class Utils {
     constructor() {
         this.className = this.constructor.name
+    }
+
+    getUID() {
+        return uuidv1()
     }
 
     extendMap(source, name, value) {
@@ -32,6 +41,16 @@ class Utils {
         }
 
         return extendedMap
+    }
+
+    flatten2DArray(list) {
+        let mergedList = []
+
+        for(let row of list)
+            for(let column of row)
+                mergedList.push(column)
+
+        return mergedList
     }
 }
 
