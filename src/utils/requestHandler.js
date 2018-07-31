@@ -2,15 +2,17 @@
 
 /******************************************************************************/
 // import area
-import request from 'request'
+import request        from 'request'
+// import requestPromise from 'request-promise-native'
 
 /******************************************************************************/
 // variables area
 
 class RequestHandler {
     constructor() {
+        this.className   = this.constructor.name
         this.promiseGET  = this.promiseGET.bind(this)
-        this.promisePOST = this.promisePOST.bind(this) 
+        this.promisePOST = this.promisePOST.bind(this)
     }
 
     promiseGET(options) {

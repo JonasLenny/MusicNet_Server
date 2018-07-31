@@ -17,6 +17,7 @@ class Store {
         this.initState     = this.initState.bind(this)
         this.getBindings   = this.getBindings.bind(this)
         this.updateBinding = this.updateBinding.bind(this)
+        this.addBinding    = this.addBinding.bind(this)
     }
 
     init() {
@@ -46,22 +47,29 @@ class Store {
     *
     **/
     addBinding(name, params) {
-        console.log(`[${this.className}] addBinding for ${name}`)
+        let promise = new Promise((resolve, reject) => {
+            console.log(`[${this.className}] addBinding for ${name}`)
 
-        let dbEntry = {
-            name   : name,
-            params : params
-        }
+            let dbEntry = {
+                name   : name,
+                params : params
+            }
 
-        this.addBinding(dbEntry)
-        this.database.save('bindings', dbEntry)
-        .then(entry => {
-            console.log(`[${this.className}] Binding ${entry.name} saved`)
-            this.updateBindingMap(entry)
+            this.addBindingMap(dbEntry)
+            this.database.save('bindings', dbEntry)
+            .then(entry => {
+                console.log(`[${this.className}] Binding ${entry.name} saved`)
+                this.updateBindingMap(entry)
+
+                resolve()
+            })
+            .catch(error => {
+                console.error(error)
+                reject(error)
+            })
         })
-        .catch(error => {
-            console.error(error)
-        })
+
+        return promise
     }
 
     updateBinding(name, data) {
@@ -126,7 +134,7 @@ class Store {
         }
     }
 
-    addBinding(entry) {
+    addBindingMap(entry) {
         this.bindings.set(entry.name, entry)
     }
 

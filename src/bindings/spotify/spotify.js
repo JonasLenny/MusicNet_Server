@@ -192,17 +192,20 @@ class Spotify extends System {
 
         RequestHandler.promisePOST(authOptions)
         .then(response => {
-            let body = response.body
+            let bindingData = response.body
+            bindingData.icon = 'Spotify_Icon_RGB_Green.png'
 
-            body.icon = 'Spotify_Icon_RGB_Green.png'
-
-            this.store.addBinding('spotify', body)
+            console.log(bindingData)
+            
+            return this.store.addBinding('spotify', bindingData)
+        })
+        .then(() => {
+            next()
         })
         .catch(error => {
-            reject(`${this.className} > ${error}`)
+            console.log(`onLoginResponse > ${error}`)
         })
 
-        next()
     }
 
 

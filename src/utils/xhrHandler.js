@@ -32,6 +32,7 @@ class XhrHandler {
     }
 
     promisePOST(options) {
+        console.log(`[${this.className}] promisePOST`)
         console.log(`[${this.className}] send post to ${options.url}`)
 
         let promise = new Promise((resolve, reject) => {
