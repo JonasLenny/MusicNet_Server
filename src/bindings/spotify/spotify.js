@@ -195,8 +195,6 @@ class Spotify extends System {
             let bindingData = response.body
             bindingData.icon = 'Spotify_Icon_RGB_Green.png'
 
-            console.log(bindingData)
-            
             return this.store.addBinding('spotify', bindingData)
         })
         .then(() => {
