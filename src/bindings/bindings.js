@@ -87,9 +87,11 @@ class Bindings {
             .then(results => {
                 let mergedResults = Utils.flatten2DArray(results)
 
-                // console.log(mergedResults)
-
                 resolve(mergedResults)
+            })
+
+            .catch(error => {
+                reject(`Bindings - search > ${error}`)
             })
         })
 

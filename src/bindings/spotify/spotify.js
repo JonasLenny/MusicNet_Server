@@ -10,7 +10,7 @@ import RequestHandler from './../../utils/requestHandler'
 // variables area
 const clientId              = '86e10ebdb02e4d7a8cef24cfa77a59b2'
 const clientSecret          = 'd9341e0adf2b40a48356c87c8ddfdd14'
-
+const clientScope           = ['streaming', 'user-read-birthdate', 'user-read-email', 'user-read-private']
 const tokenEndpoint         = 'https://accounts.spotify.com/api/token'
 const authorisationEndpoint = 'https://accounts.spotify.com/authorize'
 const searchEndpoint        = 'https://api.spotify.com/v1/search'
@@ -59,7 +59,7 @@ class Spotify extends System {
     search(param) {
         let promise = new Promise((resolve, reject) => {
             console.log(`[${this.className}] start search with ${param}`)
-            // console.log(this.storedData)
+            console.log(this.storedData)
 
             let params      = this.storedData.params
             let tokenType   = params.token_type
@@ -78,9 +78,6 @@ class Spotify extends System {
 
             RequestHandler.promiseGET(options)
             .then(response => {
-                // console.log(`[${this.className}] search response`)
-                // console.log(response.body)
-
                 let list       = response.body.tracks.items
                 let parsedList = this.parseSearchList(list)
 
@@ -102,7 +99,7 @@ class Spotify extends System {
                     })
                 }
                 else {
-                    resolve(error)
+                    reject(`Spotify - search > ${error}`)
                 }
             })
         })
@@ -156,7 +153,7 @@ class Spotify extends System {
         let redirectUri      = `http://${req.headers.host}/spotify/loginResponse`
         let state            = Utils.getUID()
         let stateKey         = 'spotify_auth_state'
-        let scope            = 'user-read-private'
+        let scope            = clientScope
         let query            = {
             client_id     : clientId,
             response_type : 'code',

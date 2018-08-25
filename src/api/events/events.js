@@ -6,6 +6,7 @@ import EventConstants from './eventConstants'
 import SocketHandler  from './socketHandler'
 
 import UserAPI        from './../userAPI'
+import DisplayAPI     from './../displayAPI'
 
 // variables area
 
@@ -31,6 +32,8 @@ class Events extends EventEmitter {
             this.eventNamespace = websocket.of(this.config.project.server.api)
 
             UserAPI.init(store)
+
+            .then(() => { return DisplayAPI.init(store) })
 
             .then(() => {
                 this.eventNamespace.on(EventConstants.CONNECTION, this.onConnection)

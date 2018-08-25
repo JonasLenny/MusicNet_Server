@@ -9,20 +9,20 @@ import Bindings       from './../bindings/bindings'
 // variables area
 
 /**
-*   This class contains all functions for the UserAPI
+*   This class contains all functions for the DisplayAPI
 *
 *   Available functions:
 *       - init(store)
 
 **/
-class UserAPI {
+class DisplayAPI {
     constructor() {
         this.className         = this.constructor.name
         this.store             = undefined
 
         this.addSocketListener = this.addSocketListener.bind(this)
         this.onRegister        = this.onRegister.bind(this)
-        this.onSearch          = this.onSearch.bind(this)
+        this.onSendTrack       = this.onSendTrack.bind(this)
     }
 
     init(store) {
@@ -46,34 +46,19 @@ class UserAPI {
             this.onRegister(socketHandler, event)
         })
 
-        socketHandler.addListener(EventConstants.SEARCH, (event) => {
-            this.onSearch(socketHandler, event)
+        socketHandler.addListener(EventConstants.SEND_TRACK, (event) => {
+            this.onSendTrack(socketHandler, event)
         })
 
         // TODO: add more listener in this function
     }
 
-    onSearch(source, event) {
-        console.log(`[${this.className}] search event received`)
+    onSendTrack(source, event) {
+        console.log(`[${this.className}] onSendTrack`)
         // console.log(source)
         console.log(event)
 
-        Bindings.search(event)
-        .then(response => {
-            // console.log(`[${this.className}] search response`)
-            // console.log(response)
-
-            return response
-        })
-        .then(list => {
-            console.log(`[${this.className}] response list`)
-            console.log(list)
-
-            source.sendMessage(EventConstants.SEARCH_RESPONSE, list)
-        })
-        .catch(error => {
-            console.error(error)
-        })
+        source.sendMessage(EventConstants.SEND_TRACK, event)
     }
 
     /***********************************************
@@ -84,17 +69,18 @@ class UserAPI {
         let type  = event.message.type
         let state = {}
 
-        if(type != EventConstants.ROLE_USER)
+        if(type != EventConstants.ROLE_DISPLAY)
             return
 
         console.log(`[${this.className}] registering event received`)
         console.log(event)
+
         let availableBindings = this.store.getBindings()
 
         state.displayState = this.store.getState(),
         state.bindings     = this.reduceBindingInformation(availableBindings)
 
-        source.joinRoom(EventConstants.ROOM_USER)
+        source.joinRoom(EventConstants.ROOM_DISPLAY)
         source.sendMessage(EventConstants.REGISTER_RESPONSE, state)
     }
 
@@ -103,8 +89,9 @@ class UserAPI {
 
         for(let [key, value] of list.entries()) {
             let reduced = {}
-            reduced.name = value.name
-            reduced.icon = value.params.icon
+            reduced.name  = value.name
+            reduced.icon  = value.params.icon
+            reduced.token = value.params.access_token
 
             reducedBindings.push(reduced)
         }
@@ -113,4 +100,4 @@ class UserAPI {
     }
 }
 
-export default new UserAPI()
+export default new DisplayAPI()
