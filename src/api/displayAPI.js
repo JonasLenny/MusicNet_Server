@@ -45,12 +45,6 @@ class DisplayAPI {
         socketHandler.addListener(EventConstants.REGISTER, (event) => {
             this.onRegister(socketHandler, event)
         })
-
-        socketHandler.addListener(EventConstants.SEND_TRACK, (event) => {
-            this.onSendTrack(socketHandler, event)
-        })
-
-        // TODO: add more listener in this function
     }
 
     onSendTrack(source, event) {
@@ -61,9 +55,11 @@ class DisplayAPI {
         source.sendMessage(EventConstants.SEND_TRACK, event)
     }
 
-    /***********************************************
-    *                 help functions
-    ************************************************/
+    /**************************************************************************
+    *
+    *                            help functions
+    *
+    **************************************************************************/
 
     onRegister(source, event) {
         let type  = event.message.type
@@ -79,6 +75,13 @@ class DisplayAPI {
 
         state.displayState = this.store.getState(),
         state.bindings     = this.reduceBindingInformation(availableBindings)
+
+        Events.on(EventConstants.SEND_TRACK, (event) => {
+            console.log(`[${this.className}] on send_track`)
+            console.log(event)
+
+            this.onSendTrack(source, event)
+        })
 
         source.joinRoom(EventConstants.ROOM_DISPLAY)
         source.sendMessage(EventConstants.REGISTER_RESPONSE, state)

@@ -48,6 +48,9 @@ class SocketHandler {
     }
 
     sendMessage(eventName, value) {
+        console.log(`[${this.socket.id}] sendMessage: ${eventName}`)
+        console.log(value)
+        console.log(this.socket.id)
         this.socket.emit(eventName, value)
     }
 

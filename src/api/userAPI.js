@@ -23,6 +23,7 @@ class UserAPI {
         this.addSocketListener = this.addSocketListener.bind(this)
         this.onRegister        = this.onRegister.bind(this)
         this.onSearch          = this.onSearch.bind(this)
+        this.onSendTrack       = this.onSendTrack.bind(this)
     }
 
     init(store) {
@@ -76,6 +77,10 @@ class UserAPI {
         })
     }
 
+    onSendTrack(event) {
+        Events.emitEvent(EventConstants.SEND_TRACK, event)
+    }
+
     /***********************************************
     *                 help functions
     ************************************************/
@@ -93,6 +98,8 @@ class UserAPI {
 
         state.displayState = this.store.getState(),
         state.bindings     = this.reduceBindingInformation(availableBindings)
+
+        source.addListener(EventConstants.SEND_TRACK, this.onSendTrack)
 
         source.joinRoom(EventConstants.ROOM_USER)
         source.sendMessage(EventConstants.REGISTER_RESPONSE, state)
