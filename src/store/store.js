@@ -10,7 +10,7 @@ class Store {
         this.className     = this.constructor.name
         this.bindings      = new Map()
         this.state         = undefined
-        this.playlist      = undefined
+        this.playlist      = []
         this.database      = new Database()
 
         this.initBindings  = this.initBindings.bind(this)
@@ -18,6 +18,10 @@ class Store {
         this.getBindings   = this.getBindings.bind(this)
         this.updateBinding = this.updateBinding.bind(this)
         this.addBinding    = this.addBinding.bind(this)
+
+        this.getPlaylist   = this.getPlaylist.bind(this)
+        this.addTrack      = this.addTrack.bind(this)
+        this.removeTrack   = this.removeTrack.bind(this)
     }
 
     init() {
@@ -102,6 +106,30 @@ class Store {
 
     getPlaylist() {
         return this.playlist
+    }
+
+    addTrack(track) {
+        let promise = new Promise((resolve, reject) => {
+            this.playlist.push(track)
+
+            resolve()
+        })
+
+        return promise
+    }
+
+    removeTrack(track) {
+        let promise = new Promise((resolve, reject) => {
+            let index = this.playlist.indexOf(track)
+
+            if(!!index) {
+                this.playlist.splice(index, 1)
+                resolve()
+            }
+            else {
+                reject()
+            }
+        })
     }
 
     /***********************************************

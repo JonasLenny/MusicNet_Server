@@ -78,7 +78,17 @@ class UserAPI {
     }
 
     onSendTrack(event) {
-        Events.emitEvent(EventConstants.SEND_TRACK, event)
+        console.log(`[${this.className}] onSendTrack`)
+        console.log(event)
+
+        this.store.addTrack(event)
+        .then(() => {
+            console.log(`[${this.className}] track stored`)
+            Events.emitEvent(EventConstants.SEND_TRACK, event)
+        })
+        .catch(error => {
+            console.log(`${this.className} - onSendTrack > ${error}`)
+        })
     }
 
     /***********************************************

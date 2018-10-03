@@ -73,7 +73,8 @@ class DisplayAPI {
 
         let availableBindings = this.store.getBindings()
 
-        state.displayState = this.store.getState(),
+        state.displayState = this.store.getState()
+        state.playlist     = this.store.getPlaylist()
         state.bindings     = this.reduceBindingInformation(availableBindings)
 
         Events.on(EventConstants.SEND_TRACK, (event) => {
