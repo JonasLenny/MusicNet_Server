@@ -1,14 +1,20 @@
 'use strict'
 
 // import area
+import EventEmitter   from 'events'
 import EventConstants from './eventConstants'
-import EventHandler   from './eventHandler'
+import SocketHandler  from './socketHandler'
+
+import UserAPI        from './../userAPI'
+import DisplayAPI     from './../displayAPI'
 
 // variables area
 
 
-class Events {
+class Events extends EventEmitter {
     constructor() {
+        super()
+
         this.className       = this.constructor.name
         this.eventNamespace  = undefined
         this.connections     = new Map()
@@ -17,20 +23,42 @@ class Events {
     }
 
     init(websocket, config, store) {
-        console.log(`[${this.className}] initialising`)
+        let promise = new Promise((resolve, reject) => {
+            console.log(`[${this.className}] initialising`)
 
-        this.websocket      = websocket
-        this.config         = config
-        this.store          = store
-        this.eventNamespace = websocket.of(this.config.project.server.api)
+            this.websocket      = websocket
+            this.config         = config
+            this.store          = store
+            this.eventNamespace = websocket.of(this.config.project.server.api)
 
-        this.eventNamespace.on(EventConstants.CONNECTION, this.onConnection)
+            UserAPI.init(store)
+
+            .then(() => { return DisplayAPI.init(store) })
+
+            .then(() => {
+                this.eventNamespace.on(EventConstants.CONNECTION, this.onConnection)
+                return
+            })
+
+            .then(() => {
+                resolve()
+            })
+
+            .catch(error => {
+                reject(error)
+            })
+
+        })
+
+        return promise
     }
 
     onConnection(socket) {
         console.log(`[${this.className}] connection established with ${socket.id}`)
+        let eventHandler = new SocketHandler(this.store, this, socket)
 
-        this.registerConnection(socket.id, new EventHandler(this.store, this, socket))
+        this.registerConnection(socket.id, eventHandler)
+        this.emitEvent(EventConstants.NEW_CONNECTION, eventHandler)
     }
 
     registerConnection(id, socket) {
@@ -42,6 +70,10 @@ class Events {
     removeConnection(id) {
         console.log(`[${this.className}] removeConnection ${id}`)
         this.connections.delete(id)
+    }
+
+    emitEvent(name, value) {
+        this.emit(name, value)
     }
 
     /***********************************************

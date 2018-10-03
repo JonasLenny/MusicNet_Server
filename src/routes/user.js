@@ -10,8 +10,8 @@ class User extends Routes {
     constructor() {
         super('User')
 
-        this.onRoot = this.onRoot.bind(this)
         this.app    = undefined
+        this.onRoot = this.onRoot.bind(this)
     }
 
     init(app) {
@@ -21,6 +21,7 @@ class User extends Routes {
 
         // register static files
         this.registerStaticFiles(`${this.publicPath}/user/`)
+        this.registerStaticFiles(`${this.publicPath}/assets/images`)
 
         // register routes
         this.get('/', this.onRoot)

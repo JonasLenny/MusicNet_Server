@@ -1,6 +1,6 @@
 {
   "name": "musicNetServer",
-  "version": "0.2.1",
+  "version": "0.7.2",
   "scripts": {
     "postinstall": "node bin/postinstall.js",
     "build:dev": "",
@@ -27,12 +27,18 @@
   "homepage": "https://github.com/JonasLenny/MusicNet_Server#readme",
   "dependencies": {
     "body-parser": "~1.18.2",
-    "cookie-parser": "~1.4.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.4",
     "express": "~4.16.3",
     "nedb": "^1.8.0",
     "path": "^0.12.7",
+    "querystring": "^0.2.0",
+    "request": "^2.87.0",
+    "request-promise-native": "^1.0.5",
     "serve-favicon": "~2.4.5",
-    "socket.io": "^2.1.1"
+    "socket.io": "^2.1.1",
+    "uuid": "^3.3.2",
+    "xhr": "^2.5.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
